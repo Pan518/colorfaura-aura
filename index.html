@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>colorfaura — 探索你的光</title>
+  <meta name="description" content="上傳你的氣場照片，解鎖專屬能量分析報告。colorfaura — Share your light with the world.">
+  <meta name="theme-color" content="#0a0a0f">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <!-- html2canvas CDN (截圖分享用) -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+
+  <!-- ============================================
+       畫面一：上傳頁
+       ============================================ -->
+  <div id="upload-screen" class="screen active">
+    <!-- 動態影片背景 -->
+    <video class="aura-bg-video" autoplay muted loop playsinline>
+      <source src="assets/bg.mp4" type="video/mp4">
+    </video>
+    <div class="aura-bg-overlay"></div>
+
+    <!-- Logo -->
+    <div class="logo-container">
+      <img src="assets/logo.svg" alt="colorfaura" class="logo-img">
+      <div class="logo-tagline">將你的光分享給世界。</div>
+    </div>
+
+    <!-- 主標題 -->
+    <div class="upload-hero">
+      <h1>探索你的光</h1>
+      <p>上傳你的氣場照片，解鎖專屬能量分析報告</p>
+    </div>
+
+    <!-- 姓名輸入 -->
+    <div class="name-input-wrapper">
+      <input type="text" id="name-input" class="name-input" placeholder="輸入你的名字（選填）" autocomplete="off">
+    </div>
+
+    <!-- 上傳區塊 -->
+    <div id="upload-zone" class="upload-zone">
+      <svg class="upload-zone-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.3"/>
+        <path d="M32 20v24M20 32h24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="32" cy="32" r="14" stroke="currentColor" stroke-width="1" opacity="0.15"/>
+      </svg>
+      <span class="upload-zone-text">點擊上傳氣場照片</span>
+      <span class="upload-zone-hint">支援 JPG、PNG 格式</span>
+      <input type="file" id="upload-input" class="upload-input" accept="image/*">
+    </div>
+
+    <!-- 隱私聲明 -->
+    <div class="privacy-note">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a3 3 0 0 0-3 3v2H4a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1h-1V4a3 3 0 0 0-3-3zm0 1.5A1.5 1.5 0 0 1 9.5 4v2h-3V4A1.5 1.5 0 0 1 8 2.5z"/></svg>
+      你的照片不會上傳至任何伺服器，所有分析在你的裝置上完成
+    </div>
+  </div>
+
+  <!-- ============================================
+       畫面二：分析動畫
+       ============================================ -->
+  <div id="analyzing-screen" class="screen">
+    <div class="analyzing-container">
+      <!-- 照片 + 掃描光環 -->
+      <div class="scan-wrapper">
+        <img id="scan-photo" class="scan-photo" src="" alt="your aura">
+        <div class="scan-ring"></div>
+      </div>
+
+      <!-- 掃描步驟 -->
+      <ul class="scan-steps">
+        <li class="scan-step">
+          <span class="scan-step-icon"></span>
+          <span class="scan-step-text">正在掃描氣場光譜...</span>
+        </li>
+        <li class="scan-step">
+          <span class="scan-step-icon"></span>
+          <span class="scan-step-text">分析能量分布與脈輪共振...</span>
+        </li>
+        <li class="scan-step">
+          <span class="scan-step-icon"></span>
+          <span class="scan-step-text">解讀光環位置與流向...</span>
+        </li>
+        <li class="scan-step">
+          <span class="scan-step-icon"></span>
+          <span class="scan-step-text">生成你的專屬報告...</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============================================
+       畫面三：報告
+       ============================================ -->
+  <div id="report-screen" class="screen">
+
+    <!-- A. Hero 總覽 -->
+    <section class="report-hero">
+      <div id="report-hero-bg" class="report-hero-bg"></div>
+      <div class="report-hero-content reveal">
+        <div id="report-date" class="report-date"></div>
+        <h1 class="report-title"><span id="report-name"></span> 的氣場能量報告</h1>
+        <div class="report-subtitle">colorfaura · 專屬光環解析</div>
+        <div id="dominant-colors" class="dominant-colors"></div>
+        <p id="hero-summary" class="hero-summary"></p>
+      </div>
+    </section>
+
+    <!-- B. 氣場光環圖 -->
+    <section class="report-section">
+      <div class="section-header reveal">
+        <div class="section-label">Aura Spectrum</div>
+        <h2 class="section-title">你的氣場光譜</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div id="aura-ring" class="aura-ring-container reveal"></div>
+    </section>
+
+    <!-- C. 能量流向圖 -->
+    <section class="report-section">
+      <div class="section-header reveal">
+        <div class="section-label">Energy Flow</div>
+        <h2 class="section-title">能量流向</h2>
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 8px;">能量從身體左側（照片右側）流入，經過當下意識，從身體右側（照片左側）釋放</p>
+        <div class="section-divider"></div>
+      </div>
+      <div id="energy-flow" class="reveal"></div>
+    </section>
+
+    <!-- D. 脈輪人體圖 -->
+    <section class="report-section">
+      <div class="section-header reveal">
+        <div class="section-label">Chakra Map</div>
+        <h2 class="section-title">脈輪能量圖</h2>
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 8px;">七大脈輪是你的能量解剖學——每個顏色/脈輪都是生活中不同的焦點領域，沒有高低之分</p>
+        <div class="section-divider"></div>
+      </div>
+      <div id="chakra-body" class="reveal"></div>
+    </section>
+
+    <!-- E. 脈輪雷達圖 -->
+    <section class="report-section">
+      <div class="section-header reveal">
+        <div class="section-label">Energy Balance</div>
+        <h2 class="section-title">能量平衡</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="radar-container reveal">
+        <canvas id="radar-chart"></canvas>
+      </div>
+    </section>
+
+    <!-- F. 顏色分布 -->
+    <section class="report-section">
+      <div class="section-header reveal">
+        <div class="section-label">Color Distribution</div>
+        <h2 class="section-title">顏色分布</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div id="distribution" class="distribution-container"></div>
+    </section>
+
+    <!-- G. 詳細顏色解讀 -->
+    <section class="report-section">
+      <div class="section-header reveal">
+        <div class="section-label">Color Insights</div>
+        <h2 class="section-title">你的光環解讀</h2>
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 8px;">每個顏色如同塔羅牌，有光明面也有陰影面——它可能代表你「正在使用」或「需要更多」這個能量</p>
+        <div class="section-divider"></div>
+      </div>
+      <div id="color-cards" class="color-cards"></div>
+    </section>
+
+    <!-- H. 能量提醒 -->
+    <section class="report-section">
+      <div class="section-header reveal">
+        <div class="section-label">Energy Awareness</div>
+        <h2 class="section-title">需要留意的能量</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div id="blockages"></div>
+    </section>
+
+    <!-- I. 行動建議 -->
+    <section class="report-section">
+      <div class="section-header reveal">
+        <div class="section-label">Actions</div>
+        <h2 class="section-title">你可以做的事</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div id="actions" class="action-cards"></div>
+    </section>
+
+    <!-- J. 頁尾 -->
+    <footer class="report-footer reveal">
+      <div class="footer-tagline">這是你獨一無二的光</div>
+      <button id="share-btn" class="share-btn" onclick="App.shareReport()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>
+        儲存 / 分享報告
+      </button>
+      <div class="footer-brand">
+        <img src="assets/logo.svg" alt="colorfaura" class="logo-img" style="height: 28px; margin-bottom: 6px;">
+        <div>將你的光分享給世界。</div>
+        <div style="margin-top: 8px;">www.colorfaura.com · @colorfaura</div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Scripts（順序重要）-->
+  <script src="js/aura-data.js"></script>
+  <script src="js/color-engine.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

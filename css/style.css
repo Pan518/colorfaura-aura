@@ -1,0 +1,1035 @@
+/* ============================================
+   Colorfaura 氣場解析報告 — 設計系統
+   ============================================ */
+
+/* --- CSS 變數（品牌色在這裡改） --- */
+:root {
+  /* 背景色 */
+  --bg-primary: #0a0a0f;
+  --bg-card: #141420;
+  --bg-card-hover: #1a1a2e;
+
+  /* 文字色 */
+  --text-primary: #ede8df;
+  --text-secondary: #9e9a93;
+  --text-muted: #6b6760;
+
+  /* 品牌色（等 Ricky 提供後可調整） */
+  --accent: #c9a96e;
+  --accent-light: #e0c98a;
+  --accent-glow: rgba(201, 169, 110, 0.3);
+
+  /* 氣場顏色 */
+  --aura-red: #e63946;
+  --aura-orange: #f4845f;
+  --aura-yellow: #f7d060;
+  --aura-green: #7cb68a;
+  --aura-turquoise: #5bc0be;
+  --aura-blue: #4a90d9;
+  --aura-indigo: #6c5ce7;
+  --aura-violet: #a855f7;
+  --aura-pink: #ec4899;
+  --aura-white: #e8e4e0;
+  --aura-gold: #d4a843;
+
+  /* 圓角 */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  /* 動畫 */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration: 0.4s;
+}
+
+/* --- Reset & Base --- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
+    'Helvetica Neue', 'Noto Sans TC', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.7;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* --- 通用排版 --- */
+h1, h2, h3, h4 {
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.2rem; }
+
+p {
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+/* --- 通用卡片 --- */
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform var(--duration) var(--ease),
+              box-shadow var(--duration) var(--ease);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   畫面一：上傳頁
+   ============================================ */
+.screen {
+  display: none;
+  min-height: 100vh;
+}
+
+.screen.active {
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- 上傳頁 --- */
+#upload-screen {
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  position: relative;
+}
+
+/* 動態影片背景 */
+.aura-bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.aura-bg-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  background: rgba(10, 10, 15, 0.55);
+}
+
+/* Logo */
+.logo-container {
+  margin-bottom: 32px;
+  z-index: 1;
+  text-align: center;
+}
+
+.logo-container img {
+  height: 48px;
+  opacity: 0.9;
+}
+
+.logo-img {
+  height: 44px;
+  width: auto;
+  display: block;
+  margin: 0 auto 4px;
+}
+
+.logo-text {
+  font-size: 1.4rem;
+  font-weight: 300;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.logo-tagline {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+}
+
+/* 主標題 */
+.upload-hero {
+  text-align: center;
+  z-index: 1;
+  margin-bottom: 40px;
+}
+
+.upload-hero h1 {
+  font-size: 2.2rem;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--text-primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.upload-hero p {
+  font-size: 0.95rem;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+/* 姓名輸入 */
+.name-input-wrapper {
+  z-index: 1;
+  margin-bottom: 24px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.name-input {
+  width: 100%;
+  padding: 14px 20px;
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 1rem;
+  text-align: center;
+  outline: none;
+  transition: border-color var(--duration) var(--ease);
+}
+
+.name-input::placeholder {
+  color: var(--text-muted);
+}
+
+.name-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* 上傳區塊 */
+.upload-zone {
+  z-index: 1;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 1;
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+  position: relative;
+  overflow: hidden;
+  background: rgba(20, 20, 32, 0.5);
+}
+
+.upload-zone:hover,
+.upload-zone.dragover {
+  border-color: var(--accent);
+  background: rgba(201, 169, 110, 0.05);
+  transform: scale(1.02);
+}
+
+.upload-zone-icon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.upload-zone-text {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.upload-zone-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.upload-input {
+  display: none;
+}
+
+/* 隱私聲明 */
+.privacy-note {
+  z-index: 1;
+  margin-top: 24px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.privacy-note svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.5;
+}
+
+/* ============================================
+   畫面二：分析動畫
+   ============================================ */
+#analyzing-screen {
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+.analyzing-container {
+  text-align: center;
+  max-width: 360px;
+}
+
+/* 照片 + 掃描光環 */
+.scan-wrapper {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin: 0 auto 40px;
+}
+
+.scan-photo {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  object-fit: cover;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  filter: brightness(0.8);
+}
+
+.scan-ring {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top: 2px solid var(--accent);
+  border-right: 2px solid var(--aura-violet);
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: scanRotate 2s linear infinite;
+}
+
+.scan-ring::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  border-bottom: 1px solid var(--aura-blue);
+  border-left: 1px solid var(--aura-pink);
+  animation: scanRotate 3s linear infinite reverse;
+}
+
+@keyframes scanRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 掃描步驟 */
+.scan-steps {
+  list-style: none;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.scan-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0.3;
+  transition: opacity 0.5s var(--ease);
+}
+
+.scan-step.active {
+  opacity: 1;
+}
+
+.scan-step.done {
+  opacity: 0.6;
+}
+
+.scan-step-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s var(--ease);
+}
+
+.scan-step.active .scan-step-icon {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.scan-step.done .scan-step-icon {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.scan-step.done .scan-step-icon::after {
+  content: '';
+  width: 8px;
+  height: 5px;
+  border-left: 2px solid var(--bg-primary);
+  border-bottom: 2px solid var(--bg-primary);
+  transform: rotate(-45deg) translateY(-1px);
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 8px var(--accent-glow); }
+  50% { box-shadow: 0 0 20px var(--accent-glow); }
+}
+
+.scan-step-text {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.scan-step.active .scan-step-text {
+  color: var(--text-primary);
+}
+
+/* ============================================
+   畫面三：報告
+   ============================================ */
+#report-screen {
+  display: none;
+}
+
+#report-screen.active {
+  display: block;
+}
+
+/* 滾動動畫 */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --- Section A: Hero 總覽 --- */
+.report-hero {
+  position: relative;
+  padding: 60px 24px 48px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.report-hero-bg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.2;
+  filter: blur(60px);
+  z-index: 0;
+}
+
+.report-hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.report-date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+
+.report-title {
+  font-size: 1.8rem;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.report-title span {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.report-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+}
+
+/* 主色圓圈 */
+.dominant-colors {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.dominant-color-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.dominant-color-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.dominant-color-circle::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dominant-color-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.dominant-color-pct {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* 一句話摘要 */
+.hero-summary {
+  font-size: 1rem;
+  color: var(--text-primary);
+  line-height: 1.9;
+  max-width: 400px;
+  margin: 0 auto;
+  font-weight: 300;
+}
+
+/* --- 通用 Section 容器 --- */
+.report-section {
+  padding: 40px 24px;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.section-label {
+  font-size: 0.7rem;
+  color: var(--accent);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 400;
+}
+
+.section-divider {
+  width: 40px;
+  height: 1px;
+  background: var(--accent);
+  margin: 16px auto 0;
+  opacity: 0.5;
+}
+
+/* --- Section B: 氣場光環圖 --- */
+.aura-ring-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.aura-ring-svg {
+  width: 240px;
+  height: 240px;
+}
+
+.aura-ring-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* --- Section C: 能量流向 --- */
+.energy-flow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  gap: 12px;
+  align-items: start;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.energy-column {
+  text-align: center;
+}
+
+.energy-column-title {
+  font-size: 0.75rem;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+
+.energy-color-dot {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin: 0 auto 8px;
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.3);
+}
+
+.energy-column-subtitle {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.energy-color-name {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.energy-timeframe {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+.energy-column p {
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.energy-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  padding-top: 40px;
+  opacity: 0.4;
+}
+
+/* --- Section D: 脈輪人體圖 --- */
+.chakra-body-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.chakra-body-svg {
+  width: 200px;
+  height: 380px;
+  position: relative;
+}
+
+.chakra-point {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.5s var(--ease);
+}
+
+.chakra-point.active {
+  box-shadow: 0 0 20px currentColor;
+  animation: chakraGlow 2s ease-in-out infinite;
+}
+
+.chakra-point.blocked {
+  opacity: 0.2;
+  filter: grayscale(0.8);
+}
+
+@keyframes chakraGlow {
+  0%, 100% { box-shadow: 0 0 12px currentColor; }
+  50% { box-shadow: 0 0 28px currentColor; }
+}
+
+.chakra-labels {
+  width: 100%;
+  max-width: 360px;
+}
+
+.chakra-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.chakra-label-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chakra-label-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.chakra-label-name {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.chakra-label-score {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Section E: 雷達圖 --- */
+.radar-container {
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+/* --- Section F: 顏色分布 --- */
+.distribution-container {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.distribution-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.distribution-label {
+  width: 60px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+.distribution-bar-bg {
+  flex: 1;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.distribution-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 1.2s var(--ease);
+}
+
+.distribution-pct {
+  width: 40px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Section G: 詳細解讀卡片 --- */
+.color-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.color-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-left: 3px solid transparent;
+}
+
+.color-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.color-card-swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+}
+
+.color-card-info h3 {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.color-card-position {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.color-card-meaning {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 12px;
+}
+
+.color-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.color-card-tag {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+}
+
+.color-card-aspects {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.color-card-aspect-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.aspect-label {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-weight: 500;
+}
+
+.aspect-label.light {
+  background: rgba(124, 182, 138, 0.15);
+  color: var(--aura-green);
+}
+
+.aspect-label.shadow {
+  background: rgba(230, 57, 70, 0.12);
+  color: #e6727a;
+}
+
+.aspect-tags {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* --- Section H: 阻塞分析 --- */
+.blockage-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  max-width: 500px;
+  margin: 0 auto 16px;
+}
+
+.blockage-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.blockage-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--aura-orange);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.blockage-header h3 {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.blockage-body p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.no-blockage {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* --- Section I: 行動建議 --- */
+.action-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.action-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.action-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  width: 40px;
+  text-align: center;
+}
+
+.action-content h3 {
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.action-content p {
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+/* --- Section J: 頁尾 --- */
+.report-footer {
+  text-align: center;
+  padding: 48px 24px 60px;
+}
+
+.footer-tagline {
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  margin-bottom: 24px;
+}
+
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  background: var(--accent);
+  color: var(--bg-primary);
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+}
+
+.share-btn:hover {
+  background: var(--accent-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--accent-glow);
+}
+
+.footer-brand {
+  margin-top: 32px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+}
+
+/* ============================================
+   手機 RWD
+   ============================================ */
+@media (max-width: 480px) {
+  h1 { font-size: 1.6rem; }
+  .upload-hero h1 { font-size: 1.8rem; }
+  .report-title { font-size: 1.5rem; }
+  .dominant-color-circle { width: 52px; height: 52px; }
+  .energy-flow { grid-template-columns: 1fr; gap: 20px; }
+  .energy-arrow { transform: rotate(90deg); padding-top: 0; }
+}
+
+@media (min-width: 768px) {
+  .report-section { padding: 60px 40px; }
+  .report-hero { padding: 80px 40px 60px; }
+  .energy-flow { max-width: 600px; }
+}

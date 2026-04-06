@@ -1,0 +1,10 @@
+{
+  "name": "colorfaura-aura",
+  "version": "1.0.0",
+  "description": "Colorfaura 氣場攝影個人解析報告",
+  "scripts": {
+    "dev": "npx serve .",
+    "start": "npx serve ."
+  },
+  "private": true
+}
