@@ -158,7 +158,6 @@ p {
   width: auto;
   display: block;
   margin: 0 auto 4px;
-  mix-blend-mode: screen;
 }
 
 .logo-text {
@@ -580,7 +579,231 @@ p {
   opacity: 0.5;
 }
 
-/* --- Section B: 氣場光環圖 --- */
+/* --- Section B: 照片分析 --- */
+.photo-analysis-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.photo-region-map {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.photo-frame {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.report-photo {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  max-height: 480px;
+}
+
+.region-overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 30%;
+  pointer-events: none;
+}
+.region-overlay.region-right { right: 0; }
+.region-overlay.region-left  { left: 0; }
+
+.region-label {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.region-label strong { font-weight: 600; }
+.region-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.region-side-labels {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 8px;
+}
+.region-incoming, .region-outgoing {
+  font-size: 0.75rem;
+  text-align: center;
+  line-height: 1.7;
+}
+.region-incoming small, .region-outgoing small { color: var(--text-muted); font-size: 0.65rem; }
+
+.photo-insight-block {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255,255,255,0.05);
+  max-width: 500px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.photo-insight-title {
+  font-size: 0.75rem;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+/* 光的成分 */
+.comp-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.comp-swatch {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.comp-name {
+  width: 52px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+.comp-bar-bg {
+  flex: 1;
+  height: 8px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.comp-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 1s var(--ease);
+}
+.comp-pct {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  width: 32px;
+  text-align: right;
+}
+
+/* 方位解析 */
+.photo-regions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.region-card {
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.region-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.region-icon {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  width: 20px;
+  text-align: center;
+}
+.region-card-title {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.region-card-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+.region-color-dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.region-color-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+.region-desc {
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+/* 脈輪綜合解析 */
+.chakra-insight-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.chakra-insight-card {
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-left: 3px solid;
+}
+.ci-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.ci-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.ci-title {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  flex: 1;
+}
+.ci-score {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.ci-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+.ci-desc {
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+/* --- Section C: 氣場光環圖 --- */
 .aura-ring-container {
   display: flex;
   flex-direction: column;

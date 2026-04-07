@@ -185,6 +185,9 @@ const App = {
       }
     }
 
+    // --- 照片 + 分析 ---
+    this._renderPhotoAnalysis(photoUrl, report);
+
     // --- 各區塊圖表 ---
     Charts.renderAuraRing('aura-ring', report.overallColors);
     Charts.renderEnergyFlow('energy-flow', report);
@@ -226,6 +229,128 @@ const App = {
     setTimeout(() => {
       document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     }, 100);
+  },
+
+  /* --- 照片分析渲染 --- */
+  _renderPhotoAnalysis(photoUrl, report) {
+    // 顯示照片
+    const photoEl = document.getElementById('report-photo');
+    if (photoEl) photoEl.src = photoUrl;
+
+    // 方位色彩輔助
+    const getAura = (key) => window.AURA_COLORS[key] || window.AURA_COLORS.blue;
+
+    // 方位標籤（top）
+    const topAura = getAura(report.presentEnergy);
+    const topLabel = document.getElementById('region-label-top');
+    if (topLabel) {
+      topLabel.innerHTML = `<span class="region-dot" style="background:${topAura.hex}"></span> 上方・意識能量<br><strong style="color:${topAura.hex}">${topAura.name}</strong>`;
+    }
+
+    // 左右色塊 overlay
+    const inAura = getAura(report.incomingEnergy);
+    const outAura = getAura(report.outgoingEnergy);
+    const overlayR = document.getElementById('region-overlay-right');
+    const overlayL = document.getElementById('region-overlay-left');
+    if (overlayR) overlayR.style.background = `linear-gradient(to left, ${inAura.hex}55, transparent)`;
+    if (overlayL) overlayL.style.background = `linear-gradient(to right, ${outAura.hex}55, transparent)`;
+
+    // 左右標籤
+    const inLabel = document.getElementById('region-label-incoming');
+    const outLabel = document.getElementById('region-label-outgoing');
+    if (inLabel) inLabel.innerHTML = `← 接收<br><span style="color:${inAura.hex}">${inAura.name}</span><br><small>身體左側</small>`;
+    if (outLabel) outLabel.innerHTML = `→ 投射<br><span style="color:${outAura.hex}">${outAura.name}</span><br><small>身體右側</small>`;
+
+    // (a) 光的成分
+    const compEl = document.getElementById('photo-composition');
+    if (compEl) {
+      let html = '<div class="composition-bars">';
+      for (const c of report.overallColors) {
+        if (c.pct < 3) continue;
+        const aura = window.AURA_COLORS[c.auraColor];
+        if (!aura) continue;
+        html += `
+          <div class="comp-row">
+            <div class="comp-swatch" style="background:${aura.hex}"></div>
+            <span class="comp-name">${aura.name}</span>
+            <div class="comp-bar-bg"><div class="comp-bar-fill" style="width:${c.pct}%; background:linear-gradient(90deg,${aura.gradient[0]},${aura.gradient[1]})"></div></div>
+            <span class="comp-pct">${c.pct}%</span>
+          </div>`;
+      }
+      html += '</div>';
+      compEl.innerHTML = html;
+    }
+
+    // (b) 方位能量分布
+    const regEl = document.getElementById('photo-regions');
+    if (regEl) {
+      const regions = [
+        { label: '身體左側（照片右）', sublabel: '接收能量 · 陰性', energy: report.incomingEnergy, meaning: 'incomingMeaning', icon: '←' },
+        { label: '上方（額頭以上）', sublabel: '當下意識', energy: report.presentEnergy, meaning: 'presentMeaning', icon: '↑' },
+        { label: '身體右側（照片左）', sublabel: '投射能量 · 陽性', energy: report.outgoingEnergy, meaning: 'outgoingMeaning', icon: '→' },
+      ];
+      let html = '';
+      for (const r of regions) {
+        const aura = getAura(r.energy);
+        html += `
+          <div class="region-card">
+            <div class="region-card-header">
+              <span class="region-icon">${r.icon}</span>
+              <div>
+                <div class="region-card-title">${r.label}</div>
+                <div class="region-card-sub">${r.sublabel}</div>
+              </div>
+              <div class="region-color-dot" style="background:linear-gradient(135deg,${aura.gradient[0]},${aura.gradient[1]})"></div>
+            </div>
+            <div class="region-color-name" style="color:${aura.hex}">${aura.name} · ${aura.nameEn}</div>
+            <p class="region-desc">${aura[r.meaning]}</p>
+          </div>`;
+      }
+      regEl.innerHTML = html;
+    }
+
+    // (c) 脈輪綜合解析
+    const chakraEl = document.getElementById('photo-chakra-insight');
+    if (chakraEl) {
+      const dominant = getAura(report.dominantEnergy);
+      const heartChakra = window.CHAKRA_DATA.heart;
+      const throatChakra = window.CHAKRA_DATA.throat;
+      const heartScore = report.chakras.heart?.score || 0;
+      const throatScore = report.chakras.throat?.score || 0;
+      const heartAura = getAura(report.regions.center[0]?.auraColor || 'green');
+      const throatAura = getAura(report.regions.incoming[1]?.auraColor || 'blue');
+
+      chakraEl.innerHTML = `
+        <div class="chakra-insight-row">
+          <div class="chakra-insight-card" style="border-color:${dominant.hex}40">
+            <div class="ci-header">
+              <span class="ci-dot" style="background:${dominant.hex}"></span>
+              <span class="ci-title">主導能量</span>
+              <span class="ci-score">${report.chakras[dominant.chakra]?.score || 0}%</span>
+            </div>
+            <div class="ci-name" style="color:${dominant.hex}">${dominant.chakraName}</div>
+            <p class="ci-desc">${dominant.meaning.slice(0, 80)}…</p>
+          </div>
+          <div class="chakra-insight-card" style="border-color:${heartChakra.color}40">
+            <div class="ci-header">
+              <span class="ci-dot" style="background:${heartChakra.color}"></span>
+              <span class="ci-title">心輪 Heart</span>
+              <span class="ci-score">${heartScore}%</span>
+            </div>
+            <div class="ci-name" style="color:${heartChakra.color}">${heartChakra.name}</div>
+            <p class="ci-desc">${heartScore >= 30 ? '心輪能量活躍，情感連結豐沛，正處於深刻感受與成長的時期。' : '心輪能量相對沉靜，此刻或許需要多給自己一些愛與空間。'}</p>
+          </div>
+          <div class="chakra-insight-card" style="border-color:${throatChakra.color}40">
+            <div class="ci-header">
+              <span class="ci-dot" style="background:${throatChakra.color}"></span>
+              <span class="ci-title">喉輪 Throat</span>
+              <span class="ci-score">${throatScore}%</span>
+            </div>
+            <div class="ci-name" style="color:${throatChakra.color}">${throatChakra.name}</div>
+            <p class="ci-desc">${throatScore >= 30 ? '喉輪能量開放，你正以真實的聲音對世界表達自己，活出對齊的狀態。' : '喉輪能量較低，可以問問自己：有什麼話還沒說出口？什麼表達被你壓住了？'}</p>
+          </div>
+        </div>`;
+    }
   },
 
   /* --- 分享截圖 --- */
