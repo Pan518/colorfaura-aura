@@ -158,6 +158,7 @@ p {
   width: auto;
   display: block;
   margin: 0 auto 4px;
+  mix-blend-mode: screen;
 }
 
 .logo-text {
