@@ -161,12 +161,22 @@ p {
 }
 
 .logo-text {
-  font-size: 1.4rem;
+  font-family: 'Nunito', sans-serif;
   font-weight: 300;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 4px;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  display: block;
+  margin: 0 auto 4px;
+  line-height: 1;
+}
+
+.logo-main {
+  font-size: 2.4rem;
+}
+
+.logo-footer {
+  font-size: 1.5rem;
+  margin-bottom: 6px;
 }
 
 .logo-tagline {
